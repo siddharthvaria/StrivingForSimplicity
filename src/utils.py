@@ -149,13 +149,9 @@ def load_data(ds_rate=None, theano_shared=True):
         train_set['labels']=numpy.concatenate((train_set['labels'].flatten(),temp['labels'].flatten()),axis=0)
 
     
-    print ('train_set[''data''] size: ', train_set['data'].shape)
-    print ('train_set[''labels''] size: ', train_set['labels'].shape)
-    
     test_batches=os.path.join(f_name,'cifar-10-batches-mat/test_batch.mat')
     test_set=scipy.io.loadmat(test_batches)
     #test_set['data']=test_set['data']/255.
-    test_set['data']=test_set['data']
     test_set['labels']=test_set['labels'].flatten()
     
     # center the data and also contrast normalize the data

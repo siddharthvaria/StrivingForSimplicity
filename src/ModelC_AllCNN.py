@@ -35,6 +35,11 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     n_train_batches = train_set_x.get_value(borrow=True).shape[0]
     n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
     n_test_batches = test_set_x.get_value(borrow=True).shape[0]
+    
+    print 'n_train_batches: ', n_train_batches
+    print 'n_valid_batches: ', n_valid_batches
+    print 'n_test_batches: ', n_test_batches
+    
     n_train_batches //= batch_size
     n_valid_batches //= batch_size
     n_test_batches //= batch_size
@@ -201,7 +206,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     )
 
     # create a list of all model parameters to be fit by gradient descent
-    params = layer0.params + layer1.params + layer2.params + layer3.params + layer4.params + layer5.params + layer6.params + layer7.params + layer8.params
+    params = layer8.params + layer7.params + layer6.params + layer5.params + layer4.params + layer3.params + layer2.params + layer1.params + layer0.params
 
     # train_model is a function that updates the model parameters by
     # SGD Since this model has many parameters, it would be tedious to
@@ -241,12 +246,8 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     
 #    validation_frequency = min(n_train_batches, patience // 2)
     
-    # number of training batches
     validation_frequency = n_train_batches // 2
     
-    ''' go through this many minibatch before checking the network on the validation set; in this case we
-    check every epoch '''
-
     best_validation_loss = numpy.inf
     best_iter = 0
     test_score = 0.
