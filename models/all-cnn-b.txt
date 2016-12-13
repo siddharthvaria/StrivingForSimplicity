@@ -28,7 +28,7 @@ layer2 = myConvLayer(
     image_shape=(batch_size, 96, 32, 32),
     ssample=(2,2),
     bordermode='half',
-    p=1.0
+    p=0.5
 )
 
 layer3 = myConvLayer(
@@ -61,7 +61,7 @@ layer5 = myConvLayer(
     image_shape=(batch_size, 192, 16, 16),
     ssample=(2,2),
     bordermode='half',
-    p=1.0
+    p=0.5
 )
 
 layer6 = myConvLayer(

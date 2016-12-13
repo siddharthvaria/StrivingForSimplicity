@@ -15,37 +15,15 @@ layer1 = myConvLayer(
     input_data=layer0.output,
     filter_shape=(96, 96, 1, 1),
     image_shape=(batch_size, 96, 32, 32),
-    ssample=(1,1),
+    ssample=(2,2),
     bordermode='half',
-    p=1.0
+    p=0.5
 )
 
 layer2 = myConvLayer(
     rng,
     is_train=training_enabled,
     input_data=layer1.output,
-    filter_shape=(96, 96, 3, 3),
-    image_shape=(batch_size, 96, 32, 32),
-    ssample=(1,1),
-    bordermode='half',
-    p=1.0
-)
-
-//add dropout to the maxpool layer
-pool2_size = (3,3)
-pooled2_out = pool.pool_2d(
-    input = layer2.output,
-    ds = pool2_size,
-    st = (2,2),
-    ignore_border = False
-)
-
-%% drop out = 0.5
-
-layer3 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=pooled2_out,
     filter_shape=(192, 96, 5, 5),
     image_shape=(batch_size, 96, 16, 16),
     ssample=(1,1),
@@ -53,12 +31,23 @@ layer3 = myConvLayer(
     p=1.0
 )
 
+layer3 = myConvLayer(
+    rng,
+    is_train=training_enabled,
+    input_data=layer2.output,
+    filter_shape=(192, 96, 1, 1),
+    image_shape=(batch_size, 96, 16, 16),
+    ssample=(2,2),
+    bordermode='half',
+    p=0.5
+)
+
 layer4 = myConvLayer(
     rng,
     is_train=training_enabled,
     input_data=layer3.output,
-    filter_shape=(192, 192, 1, 1),
-    image_shape=(batch_size, 192, 16, 16),
+    filter_shape=(192, 192, 3, 3),
+    image_shape=(batch_size, 192, 8, 8),
     ssample=(1,1),
     bordermode='half',
     p=1.0
@@ -68,38 +57,6 @@ layer5 = myConvLayer(
     rng,
     is_train=training_enabled,
     input_data=layer4.output,
-    filter_shape=(192, 192, 3, 3),
-    image_shape=(batch_size, 192, 16, 16),
-    ssample=(1,1),
-    bordermode='half',
-    p=1.0
-)
-
-pool5_size = (3,3)
-pooled5_out = pool.pool_2d(
-    input = layer5.output,
-    ds = pool5_size,
-    st = (2,2),
-    ignore_border = False
-)
-
-%% dropout = 0.5
-
-layer6 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=pooled5_out,
-    filter_shape=(192, 192, 3, 3),
-    image_shape=(batch_size, 192, 8, 8),
-    ssample=(1,1),
-    bordermode='half',
-    p=1.0
-)
-
-layer7 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer6.output,
     filter_shape=(192, 192, 1, 1),
     image_shape=(batch_size, 192, 8, 8),
     ssample=(1,1),
@@ -107,10 +64,10 @@ layer7 = myConvLayer(
     p=1.0
 )
 
-layer8 = myConvLayer(
+layer6 = myConvLayer(
     rng,
     is_train=training_enabled,
-    input_data=layer7.output,
+    input_data=layer5.output,
     filter_shape=(10, 192, 1, 1),
     image_shape=(batch_size, 192, 8, 8),
     ssample=(1,1),
@@ -119,4 +76,4 @@ layer8 = myConvLayer(
 )
 
 # make sure this is what global averaging does
-global_average=layer8.output.mean(axis=(2,3))
+global_average=layer6.output.mean(axis=(2,3))

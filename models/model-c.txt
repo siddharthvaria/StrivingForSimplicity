@@ -2,7 +2,7 @@ layer0 = myConvLayer(
     rng,
     is_train=training_enabled,
     input_data=dropout_input,
-    filter_shape=(96, 3, 5, 5),
+    filter_shape=(96, 3, 3, 3),
     image_shape=(batch_size, 3, 32, 32),
     ssample=(1,1),
     bordermode='half',
@@ -13,17 +13,6 @@ layer1 = myConvLayer(
     rng,
     is_train=training_enabled,
     input_data=layer0.output,
-    filter_shape=(96, 96, 1, 1),
-    image_shape=(batch_size, 96, 32, 32),
-    ssample=(1,1),
-    bordermode='half',
-    p=1.0
-)
-
-layer2 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer1.output,
     filter_shape=(96, 96, 3, 3),
     image_shape=(batch_size, 96, 32, 32),
     ssample=(1,1),
@@ -31,22 +20,20 @@ layer2 = myConvLayer(
     p=1.0
 )
 
-//add dropout to the maxpool layer
-pool2_size = (3,3)
-pooled2_out = pool.pool_2d(
-    input = layer2.output,
-    ds = pool2_size,
-    st = (2,2),
-    ignore_border = False
+# add 3*3 max-pooling stride 2
+pooled_out2 = pool.pool_2d(
+    input=layer1.output,
+    ds=(3,3),
+    st=(2,2),
+    ignore_border=False
 )
-
-%% drop out = 0.5
+# drop out with 50% probability
 
 layer3 = myConvLayer(
     rng,
     is_train=training_enabled,
-    input_data=pooled2_out,
-    filter_shape=(192, 96, 5, 5),
+    input_data=pooled_out2,
+    filter_shape=(192, 96, 3, 3),
     image_shape=(batch_size, 96, 16, 16),
     ssample=(1,1),
     bordermode='half',
@@ -57,17 +44,6 @@ layer4 = myConvLayer(
     rng,
     is_train=training_enabled,
     input_data=layer3.output,
-    filter_shape=(192, 192, 1, 1),
-    image_shape=(batch_size, 192, 16, 16),
-    ssample=(1,1),
-    bordermode='half',
-    p=1.0
-)
-
-layer5 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer4.output,
     filter_shape=(192, 192, 3, 3),
     image_shape=(batch_size, 192, 16, 16),
     ssample=(1,1),
@@ -75,20 +51,19 @@ layer5 = myConvLayer(
     p=1.0
 )
 
-pool5_size = (3,3)
-pooled5_out = pool.pool_2d(
-    input = layer5.output,
-    ds = pool5_size,
-    st = (2,2),
-    ignore_border = False
+# add 3*3 max-pooling stride 2
+pooled_out5 = pool.pool_2d(
+    input=layer4.output,
+    ds=(3,3),
+    st=(2,2),
+    ignore_border=False
 )
-
-%% dropout = 0.5
+# drop out with 50% probability
 
 layer6 = myConvLayer(
     rng,
     is_train=training_enabled,
-    input_data=pooled5_out,
+    input_data=pooled_out5,
     filter_shape=(192, 192, 3, 3),
     image_shape=(batch_size, 192, 8, 8),
     ssample=(1,1),
