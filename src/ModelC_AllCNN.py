@@ -10,7 +10,7 @@ import cPickle
 from utils import load_data, drop
 from cnn_utils import myConvLayer, SoftmaxWrapper
 
-def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=500, L2_reg=0.001, input_ndo_p=0.8, layer_ndo_p=0.5, save_model=True, save_freq=1):
+def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=500, L2_reg=0.001, input_ndo_p=0.8, layer_ndo_p=0.5, save_model=True, save_freq=50):
     """
     :type learning_rate: float
     :param learning_rate: learning rate used (factor for the stochastic
