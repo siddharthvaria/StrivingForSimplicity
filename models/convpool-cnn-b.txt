@@ -40,6 +40,8 @@ pooled2_out = pool.pool_2d(
     ignore_border = False
 )
 
+%% drop out = 0.5
+
 layer3 = myConvLayer(
     rng,
     is_train=training_enabled,
@@ -80,6 +82,8 @@ pooled5_out = pool.pool_2d(
     st = (2,2),
     ignore_border = False
 )
+
+%% dropout = 0.5
 
 layer6 = myConvLayer(
     rng,
