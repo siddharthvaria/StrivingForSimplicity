@@ -23,7 +23,7 @@ layer1 = myConvLayer(
 //add dropout to the maxpool layer
 pool2_size = (3,3)
 pooled2_out = pool.pool_2d(
-    input = layer1.out,
+    input = layer1.output,
     ds = pool2_size,
     st = (2,2),
     ignore_border = False
