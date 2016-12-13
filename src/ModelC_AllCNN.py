@@ -270,7 +270,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=500, L2_reg=
             print 'learning_rate: ', learning_rate
 
         for minibatch_index in range(n_train_batches):
-            print 'epoch: {0}, minibatch: {1}'.format(epoch, minibatch_index)
+            #print 'epoch: {0}, minibatch: {1}'.format(epoch, minibatch_index)
                         
             iter = (epoch - 1) * n_train_batches + minibatch_index
             if iter % 50 == 0:
