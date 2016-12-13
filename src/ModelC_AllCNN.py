@@ -10,7 +10,7 @@ import cPickle
 from utils import load_data, drop
 from cnn_utils import myConvLayer, SoftmaxWrapper
 
-def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=500, L2_reg=0.001, input_ndo_p=0.8, layer_ndo_p=0.5, save_model=True, save_freq=50):
+def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=0.001, input_ndo_p=0.8, layer_ndo_p=0.5, save_model=True, save_freq=50):
     """
     :type learning_rate: float
     :param learning_rate: learning rate used (factor for the stochastic
@@ -164,7 +164,6 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=500, L2_reg=
 
     softmax_layer=SoftmaxWrapper(input_data=global_average, n_in=10, n_out=10)
 
-    ####
     L2_sqr = (
                 (layer0.W ** 2).sum()
                 +(layer1.W**2).sum()
@@ -243,7 +242,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=500, L2_reg=
 #    validation_frequency = min(n_train_batches, patience // 2)
     
     # number of training batches
-    validation_frequency = n_train_batches
+    validation_frequency = n_train_batches // 2
     
     ''' go through this many minibatch before checking the network on the validation set; in this case we
     check every epoch '''
