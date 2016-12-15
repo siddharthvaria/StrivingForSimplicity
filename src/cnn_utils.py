@@ -91,7 +91,7 @@ class SoftmaxWrapper(object):
 # Below convolutional layer skips pooling and depending on the ssample dimensions uses stride of 1 or more.
 class myConvLayer(object):
 
-    def __init__(self, rng, is_train, input_data, filter_shape, image_shape, ssample=(1,1), bordermode='valid', p=0.5):
+    def __init__(self, rng, is_train, input_data, filter_shape, image_shape, ssample=(1,1), bordermode='valid', p=0.5, alpha=0):
         """
         Allocate a LeNetConvPoolLayer with shared variable internal parameters.
 
@@ -153,7 +153,7 @@ class myConvLayer(object):
         # thus be broadcasted across mini-batches and feature map
         # width & height
                 
-        activated_output = T.nnet.relu(conv_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+        activated_output = T.nnet.relu(conv_out + self.b.dimshuffle('x', 0, 'x', 'x'), alpha=alpha)
         
         dropped_output = drop(activated_output,p)
         
