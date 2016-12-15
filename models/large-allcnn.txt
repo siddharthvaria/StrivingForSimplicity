@@ -8,8 +8,8 @@ layer0 = myConvLayer(
     image_shape=(batch_size, 3, 126, 126),
     ssample=(1,1),
     bordermode='valid',
-    p=1.0
-    %activation=nnet.relu(alpha=0.5)
+    p=1.0,
+    alpha=0.5  ##leaky relu
     )
 
 layer1 = myConvLayer(
@@ -20,8 +20,8 @@ layer1 = myConvLayer(
     image_shape=(batch_size, 320, 125, 125),
     ssample=(1,1),
     bordermode='valid',
-    p=1.0
-    %activation=nnet.relu(alpha=0.5)
+    p=1.0,
+    alpha=0.5  ##leaky relu
 )
 
 layer2 = myConvLayer(
@@ -32,8 +32,8 @@ layer2 = myConvLayer(
     image_shape=(batch_size, 320, 124, 124),
     ssample=(2,2),
     bordermode='valid',
-    p=1.0
-    %activation=nnet.relu(alpha=0.5)
+    p=1.0,
+    alpha=0.5  ##leaky relu
 )
 
 layer3 = myConvLayer(
@@ -44,8 +44,8 @@ layer3 = myConvLayer(
     image_shape=(batch_size, 320, 62, 62),
     ssample=(1,1),
     bordermode='valid',
-    p=0.9
-    %activation=nnet.relu(alpha=0.5)
+    p=0.9,
+    alpha=0.5  ##leaky relu
 )
 
 layer4 = myConvLayer(
@@ -56,8 +56,8 @@ layer4 = myConvLayer(
     image_shape=(batch_size, 640, 61, 61),
     ssample=(1,1),
     bordermode='valid',
-    p=0.9
-    %activation=nnet.relu(alpha=0.5)
+    p=0.9,
+    alpha=0.5  ##leaky relu
 )
 
 layer5 = myConvLayer(
@@ -68,8 +68,8 @@ layer5 = myConvLayer(
     image_shape=(batch_size, 640, 60, 60),
     ssample=(2,2),
     bordermode='valid',
-    p=1.0
-    %activation=nnet.relu(alpha=0.5)
+    p=1.0,
+    alpha=0.5  ##leaky relu
 )
 
 layer6 = myConvLayer(
@@ -80,8 +80,8 @@ layer6 = myConvLayer(
     image_shape=(batch_size, 640, 30, 30),
     ssample=(1,1),
     bordermode='valid',
-    p=0.8
-    %activation=nnet.relu(alpha=0.5)
+    p=0.8,
+    alpha=0.5  ##leaky relu
 )
 
 layer7 = myConvLayer(
@@ -92,8 +92,8 @@ layer7 = myConvLayer(
     image_shape=(batch_size, 960, 29, 29),
     ssample=(1,1),
     bordermode='valid',
-    p=0.8
-    %activation=nnet.relu(alpha=0.5)
+    p=0.8,
+    alpha=0.5  ##leaky relu
 )
 
 layer8 = myConvLayer(
@@ -104,8 +104,8 @@ layer8 = myConvLayer(
     image_shape=(batch_size, 960, 28, 28),
     ssample=(2,2),
     bordermode='valid',
-    p=1.0
-    %activation=nnet.relu(alpha=0.5)
+    p=1.0,
+    alpha=0.5  ##leaky relu
 )
 
 layer9 = myConvLayer(
@@ -116,8 +116,8 @@ layer9 = myConvLayer(
     image_shape=(batch_size, 960, 14, 14),
     ssample=(1,1),
     bordermode='valid',
-    p=0.7
-    %activation=nnet.relu(alpha=0.5)
+    p=0.7,
+    alpha=0.5  ##leaky relu
 )
 
 layer10 = myConvLayer(
@@ -128,8 +128,8 @@ layer10 = myConvLayer(
     image_shape=(batch_size, 1280, 13, 13),
     ssample=(1,1),
     bordermode='valid',
-    p=0.7
-    %activation=nnet.relu(alpha=0.5)
+    p=0.7,
+    alpha=0.5  ##leaky relu
 )
 
 layer11 = myConvLayer(
@@ -140,8 +140,8 @@ layer11 = myConvLayer(
     image_shape=(batch_size, 1280, 12, 12),
     ssample=(2,2),
     bordermode='valid',
-    p=1.0
-    %activation=nnet.relu(alpha=0.5)
+    p=1.0,
+    alpha=0.5  ##leaky relu
 )
 
 layer12 = myConvLayer(
@@ -152,8 +152,8 @@ layer12 = myConvLayer(
     image_shape=(batch_size, 1280, 6, 6),
     ssample=(1,1),
     bordermode='valid',
-    p=0.6
-    %activation=nnet.relu(alpha=0.5)
+    p=0.6,
+    alpha=0.5  ##leaky relu
 )
 
 layer13 = myConvLayer(
@@ -164,8 +164,8 @@ layer13 = myConvLayer(
     image_shape=(batch_size, 1600, 5, 5),
     ssample=(1,1),
     bordermode='valid',
-    p=0.6
-    %activation=nnet.relu(alpha=0.5)
+    p=0.6,
+    alpha=0.5  ##leaky relu
 )
 
 layer14 = myConvLayer(
@@ -176,8 +176,8 @@ layer14 = myConvLayer(
     image_shape=(batch_size, 1600, 4, 4),
     ssample=(2,2),
     bordermode='valid',
-    p=1.0
-    %activation=nnet.relu(alpha=0.5)
+    p=1.0,
+    alpha=0.5  ##leaky relu
 )
 
 layer15 = myConvLayer(
@@ -188,8 +188,8 @@ layer15 = myConvLayer(
     image_shape=(batch_size, 1600, 2, 2),
     ssample=(1,1)
     bordermode='valid',
-    p=0.5
-    %activation=nnet.relu(alpha=0.5)
+    p=0.5,
+    alpha=0.5  ##leaky relu
 )
 
 layer16 = myConvLayer(
@@ -200,8 +200,8 @@ layer16 = myConvLayer(
     image_shape=(batch_size, 1920, 1, 1),
     ssample=(1,1),
     bordermode='valid',
-    p=0.5
-    %activation=nnet.relu(alpha=0.5)
+    p=0.5,
+    alpha=0.5  ##leaky relu
 )
 
 # make sure this is what global averaging does
