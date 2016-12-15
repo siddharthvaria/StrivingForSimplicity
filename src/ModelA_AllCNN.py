@@ -109,7 +109,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
         p=0.5
     )
 
-    layer4 = myConvLayer
+    layer4 = myConvLayer(
         rng,
         is_train=training_enabled,
         input_data=layer3.output,
