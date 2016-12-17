@@ -1,15 +1,13 @@
 from __future__ import print_function
 import os
-import sys
 import numpy
 import scipy.io
 import tarfile
 import theano
 import theano.tensor as T
 from preprocessing import global_contrast_normalize
-import timeit
-import inspect
-
+import cPickle as pickle
+import gzip
 
 def drop(input, p=0.5): 
     """
@@ -19,7 +17,7 @@ def drop(input, p=0.5):
     :type p: float or double between 0. and 1. 
     :param p: p probability of NOT dropping out a unit, therefore (1.-p) is the drop rate.
     
-    """            
+    """  
     rng = numpy.random.RandomState(1234)
     srng = T.shared_randomstreams.RandomStreams(rng.randint(999999))
     mask = srng.binomial(n=1, p=p, size=input.shape, dtype=theano.config.floatX)
@@ -85,7 +83,7 @@ def shared_dataset(data_xy, borrow=True):
     # lets ous get around this issue
     return shared_x, T.cast(shared_y, 'int32')
 
-def load_data(ds_rate=None, theano_shared=True):
+def load_data1(ds_rate=None, theano_shared=True):
     ''' Loads the CIFAR-10 dataset
 
     :type ds_rate: float
@@ -158,7 +156,7 @@ def load_data(ds_rate=None, theano_shared=True):
     # https://groups.google.com/forum/#!topic/pylearn-users/J-Q-o_FtUl8
     # sqrt_bias=10 for pixel range [0,255]
     # Should we normalize r,g,b components separately ? Not sure
-    
+
     print ('global contrast normalizing train data ...')
     train_set['data'] = global_contrast_normalize(train_set['data'], subtract_mean=True, use_std=True, sqrt_bias=10)
     print ('global contrast normalizing test data ...')
@@ -167,6 +165,69 @@ def load_data(ds_rate=None, theano_shared=True):
     train_set=(train_set['data'],train_set['labels'])
     test_set=(test_set['data'],test_set['labels'])
     
+    # Downsample the training dataset if specified
+    train_set_len = len(train_set[1])
+    if ds_rate is not None:
+        train_set_len = int(train_set_len // ds_rate)
+        train_set = [x[:train_set_len] for x in train_set]
+
+    # Extract validation dataset from train dataset
+    # valid_set is 1/5th of the train set however this portion is not removed from the train set
+    # This is done because train set was not reduced in the paper. 
+    valid_set = [x[-(train_set_len//5):] for x in train_set]
+    #train_set = [x[:-(train_set_len//5)] for x in train_set]
+
+    # train_set, valid_set, test_set format: tuple(input, target)
+    # input is a numpy.ndarray of 2 dimensions (a matrix)
+    # where each row corresponds to an example. target is a
+    # numpy.ndarray of 1 dimension (vector) that has the same length as
+    # the number of rows in the input. It should give the target
+    # to the example with the same index in the input.
+
+    if theano_shared:
+        test_set_x, test_set_y = shared_dataset(test_set)
+        valid_set_x, valid_set_y = shared_dataset(valid_set)
+        train_set_x, train_set_y = shared_dataset(train_set)
+
+        rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y),
+            (test_set_x, test_set_y)]
+    else:
+        rval = [train_set, valid_set, test_set]
+
+    return rval
+
+def load_data2(ds_rate=None, theano_shared=True):
+    ''' Loads the CIFAR-10 dataset
+
+    :type ds_rate: float
+    :param ds_rate: downsample rate; should be larger than 1, if provided.
+
+    :type theano_shared: boolean
+    :param theano_shared: If true, the function returns the dataset as Theano
+    shared variables. Otherwise, the function returns raw data.
+    '''
+    
+    if ds_rate is not None:
+        assert(ds_rate > 1.)
+        
+    train_set = None
+    with gzip.open('../data/train_whitened_gcn.pklz','rb') as fp:
+        train_set = pickle.load(fp)
+    
+    train_X, train_y = train_set
+    train_y = train_y.flatten()
+    
+    train_set = (train_X, train_y)
+
+    test_set = None
+    with gzip.open('../data/test_whitened_gcn.pklz','rb') as fp:
+        test_set = pickle.load(fp)
+        
+    test_X, test_y = test_set
+    test_y = test_y.flatten()
+    
+    test_set = (test_X, test_y)
+
     # Downsample the training dataset if specified
     train_set_len = len(train_set[1])
     if ds_rate is not None:

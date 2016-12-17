@@ -36,15 +36,17 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
     n_test_batches = test_set_x.get_value(borrow=True).shape[0]
     
-    print 'n_train_batches: ', n_train_batches
-    print 'n_valid_batches: ', n_valid_batches
-    print 'n_test_batches: ', n_test_batches
     
     n_train_batches //= batch_size
     n_valid_batches //= batch_size
     n_test_batches //= batch_size
+
+    print 'n_train_batches: ', n_train_batches
+    print 'n_valid_batches: ', n_valid_batches
+    print 'n_test_batches: ', n_test_batches
     
     learning_rate = numpy.asarray(learning_rate, dtype=numpy.float32)
+    print 'learning_rate: ', learning_rate
 
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
