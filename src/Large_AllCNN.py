@@ -68,7 +68,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     dropout_input = T.switch(T.neq(training_enabled, 0), drop(layer0_input, p=input_ndo_p), input_ndo_p * layer0_input)
 
         
-    ## input of 126x126 with color and spatial augmentation
+    ##input of 126x126 with color and spatial augmentation and no dropout
 
     layer0 = myConvLayer(
     rng,
