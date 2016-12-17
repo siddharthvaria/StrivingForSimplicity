@@ -7,7 +7,7 @@ import theano.tensor as T
 import gzip
 import cPickle
 
-from utils import load_data, drop
+from utils import load_data2, drop
 from cnn_utils import myConvLayer, SoftmaxWrapper
 
 def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=0.001, input_ndo_p=0.8, layer_ndo_p=0.5, save_model=True, save_freq=50):
@@ -25,7 +25,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
 
     rng = numpy.random.RandomState(23455)
 
-    datasets = load_data()
+    datasets = load_data2()
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
