@@ -1,4 +1,3 @@
-
 import numpy
 import sys
 import os
@@ -8,14 +7,15 @@ import theano.tensor as T
 import gzip
 import cPickle
 
-from utils import load_data, drop
-from cnn_utils import myConvLayer, SoftmaxWrapper
+from utils import load_data2, drop
+from Models import ModelA_AllCNN, ModelB_AllCNN, ModelC_AllCNN
 
-def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=0.001, input_ndo_p=0.8, layer_ndo_p=0.5, save_model=True, save_freq=50):
+def test_AllCNN_Models(model='c', learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=0.001, input_ndo_p=0.8, layer_ndo_p=0.5, save_model=True, save_freq=50):
     """
     :type learning_rate: float
     :param learning_rate: learning rate used (factor for the stochastic
                           gradient)
+
     :type n_epochs: int
     :param n_epochs: maximal number of epochs to run the optimizer
     
@@ -23,9 +23,10 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     :param batch_size: the number of training examples per batch
     """
 
+    
     rng = numpy.random.RandomState(23455)
 
-    datasets = load_data()
+    datasets = load_data2()
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
@@ -67,264 +68,44 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     # drop the input only while training, don't drop while testing
     dropout_input = T.switch(T.neq(training_enabled, 0), drop(layer0_input, p=input_ndo_p), input_ndo_p * layer0_input)
 
+    classifier = None
+    if model == 'a':
+        classifier = ModelA_AllCNN(rng, 
+                           dropout_input, 
+                           y, 
+                           batch_size, 
+                           training_enabled, 
+                           layer_ndo_p, 
+                           L2_reg
+                           )
         
-    ##input of 126x126 with color and spatial augmentation and no dropout
-
-    layer0 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=dropout_input, ## extreme augmented data input
-    filter_shape=(320, 3, 2, 2),
-    image_shape=(batch_size, 3, 126, 126),
-    ssample=(1,1),
-    bordermode='valid',
-    p=1.0,
-    alpha=0.5  ##leaky relu
-    )
-
-    layer1 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer0.output,
-    filter_shape=(320, 320, 2, 2),
-    image_shape=(batch_size, 320, 125, 125),
-    ssample=(1,1),
-    bordermode='valid',
-    p=1.0,
-    alpha=0.5  ##leaky relu
-)
-
-    layer2 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer1.output,
-    filter_shape=(320, 320, 2, 2),
-    image_shape=(batch_size, 320, 124, 124),
-    ssample=(2,2),
-    bordermode='valid',
-    p=1.0,
-    alpha=0.5  ##leaky relu
-)
-
-    layer3 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer2.output,
-    filter_shape=(640, 320, 2, 2),
-    image_shape=(batch_size, 320, 62, 62),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.9,
-    alpha=0.5  ##leaky relu
-)
-
-    layer4 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer3.output,
-    filter_shape=(640, 640, 2, 2),
-    image_shape=(batch_size, 640, 61, 61),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.9,
-    alpha=0.5  ##leaky relu
-)
-
-    layer5 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer4.output,
-    filter_shape=(640, 640, 2, 2),
-    image_shape=(batch_size, 640, 60, 60),
-    ssample=(2,2),
-    bordermode='valid',
-    p=1.0,
-    alpha=0.5  ##leaky relu
-)
-
-    layer6 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer5.output,
-    filter_shape=(960, 640, 2, 2),
-    image_shape=(batch_size, 640, 30, 30),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.8,
-    alpha=0.5  ##leaky relu
-)
-
-    layer7 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer6.output,
-    filter_shape=(960, 960, 2, 2),
-    image_shape=(batch_size, 960, 29, 29),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.8,
-    alpha=0.5  ##leaky relu
-)
-
-    layer8 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer7.output,
-    filter_shape=(960, 960, 2, 2),
-    image_shape=(batch_size, 960, 28, 28),
-    ssample=(2,2),
-    bordermode='valid',
-    p=1.0,
-    alpha=0.5  ##leaky relu
-)
-
-    layer9 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer8.output,
-    filter_shape=(1280, 960, 2, 2),
-    image_shape=(batch_size, 960, 14, 14),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.7,
-    alpha=0.5  ##leaky relu
-)
-
-    layer10 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer9.output,
-    filter_shape=(1280, 1280, 2, 2),
-    image_shape=(batch_size, 1280, 13, 13),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.7,
-    alpha=0.5  ##leaky relu
-)
-
-    layer11 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer10.output,
-    filter_shape=(1280, 1280, 2, 2),
-    image_shape=(batch_size, 1280, 12, 12),
-    ssample=(2,2),
-    bordermode='valid',
-    p=1.0,
-    alpha=0.5  ##leaky relu
-)
-
-    layer12 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer11.output,
-    filter_shape=(1600, 1280, 2, 2),
-    image_shape=(batch_size, 1280, 6, 6),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.6,
-    alpha=0.5  ##leaky relu
-)
-
-    layer13 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer12.output,
-    filter_shape=(1600, 1600, 2, 2),
-    image_shape=(batch_size, 1600, 5, 5),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.6,
-    alpha=0.5  ##leaky relu
-)
-
-    layer14 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer13.output,
-    filter_shape=(1600, 1600, 2, 2),
-    image_shape=(batch_size, 1600, 4, 4),
-    ssample=(2,2),
-    bordermode='valid',
-    p=1.0,
-    alpha=0.5  ##leaky relu
-)
-
-    layer15 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer14.output,
-    filter_shape=(1920, 1600, 2, 2),
-    image_shape=(batch_size, 1600, 2, 2),
-    ssample=(1,1)
-    bordermode='valid',
-    p=0.5,
-    alpha=0.5  ##leaky relu
-)
-
-    layer16 = myConvLayer(
-    rng,
-    is_train=training_enabled,
-    input_data=layer15.output,
-    filter_shape=(1920, 1920, 1, 1),
-    image_shape=(batch_size, 1920, 1, 1),
-    ssample=(1,1),
-    bordermode='valid',
-    p=0.5,
-    alpha=0.5  ##leaky relu
-)
-
-    layer17 = myConvLayer(
-        rng,
-        is_train=training_enabled,
-        input_data=layer16.output,
-        filter_shape=(10,1920,1,1),
-        image_shape=(batch_size,1920,1,1),
-        ssample=(1,1),
-        bordermode='valid',
-        p=1.0,
-        alpha=0.5 ##leaky relu
-
-    )
-
-# make sure this is what global averaging does
-## no global_average=layer8.output.mean(axis=(2,3))
-## directly softmax layer
-
-    # make sure this is what global averaging does
-    # global_average=layer8.output.mean(axis=(2,3))
-
-    softmax_layer=SoftmaxWrapper(input_data=layer17.output, n_in=10, n_out=10)
-
-    L2_sqr = (
-                (layer0.W ** 2).sum()
-                +(layer1.W**2).sum()
-                +(layer2.W**2).sum()
-                +(layer3.W**2).sum()
-                +(layer4.W**2).sum()
-                +(layer5.W**2).sum()
-                +(layer6.W**2).sum()
-                +(layer7.W**2).sum()
-                +(layer8.W**2).sum()
-                +(layer9.W**2).sum()
-                +(layer10.W**2).sum()
-                +(layer11.W**2).sum()
-                +(layer12.W**2).sum()
-                +(layer13.W**2).sum()
-                +(layer14.W**2).sum()
-                +(layer15.W**2).sum()
-                +(layer16.W**2).sum()
-                +(layer17.W**2).sum()
-
-    )
-
-    # the cost we minimize during training is the NLL of the model
-    cost = (softmax_layer.negative_log_likelihood(y) + L2_reg*L2_sqr)
+    elif model == 'b':
+        classifier = ModelB_AllCNN(rng, 
+                                   dropout_input, 
+                                   y, 
+                                   batch_size, 
+                                   training_enabled, 
+                                   layer_ndo_p, 
+                                   L2_reg
+                                   )
+    elif model == 'c':
+        classifier = ModelC_AllCNN(rng, 
+                                   dropout_input, 
+                                   y, 
+                                   batch_size, 
+                                   training_enabled, 
+                                   layer_ndo_p, 
+                                   L2_reg
+                                   )
+    else:
+        raise RuntimeError('Invalid model parameter!')
+    
+    print 'Training Model: ', classifier.__class__.__name__
 
     # create a function to compute the mistakes that are made by the model
     test_model = theano.function(
         [index],
-        softmax_layer.errors(y),
+        classifier.errors,
         givens={
             x: test_set_x[index * batch_size: (index + 1) * batch_size],
             y: test_set_y[index * batch_size: (index + 1) * batch_size],
@@ -334,7 +115,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
 
     validate_model = theano.function(
         [index],
-        softmax_layer.errors(y),
+        classifier.errors,
         givens={
             x: valid_set_x[index * batch_size: (index + 1) * batch_size],
             y: valid_set_y[index * batch_size: (index + 1) * batch_size],
@@ -343,7 +124,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
     )
 
     # create a list of all model parameters to be fit by gradient descent
-    params = layer17.params + layer16.params + layer15.params + layer14.params + layer13.params + layer12.params + layer11.params + layer10.params + layer9.params + layer8.params + layer7.params + layer6.params + layer5.params + layer4.params + layer3.params + layer2.params + layer1.params + layer0.params
+    #params = layer8.params + layer7.params + layer6.params + layer5.params + layer4.params + layer3.params + layer2.params + layer1.params + layer0.params
 
     # train_model is a function that updates the model parameters by
     # SGD Since this model has many parameters, it would be tedious to
@@ -353,14 +134,14 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
 
     momentum =theano.shared(numpy.cast[theano.config.floatX](0.9), name='momentum')
     updates = []
-    for param in  params:
+    for param in classifier.params:
         param_update = theano.shared(param.get_value()*numpy.cast[theano.config.floatX](0.))    
         updates.append((param, param - lr * param_update))
-        updates.append((param_update, momentum*param_update + (numpy.cast[theano.config.floatX](1.) - momentum)*T.grad(cost, param)))
+        updates.append((param_update, momentum*param_update + (numpy.cast[theano.config.floatX](1.) - momentum)*T.grad(classifier.cost, param)))
 
     train_model = theano.function(
         [index, lr],
-        cost,
+        classifier.cost,
         updates=updates,
         givens={
             x: train_set_x[index * batch_size: (index + 1) * batch_size],
@@ -454,7 +235,7 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
         if save_model and epoch % save_freq == 0:
             # add model name to the file to differentiate different models
             with gzip.open('parameters_epoch_{0}.pklz'.format(epoch), 'wb') as fp:                
-                cPickle.dump([param.get_value() for param in params], fp, protocol=2)
+                cPickle.dump([param.get_value() for param in classifier.params], fp, protocol=2)
         
     end_time = timeit.default_timer()
     print('Optimization complete.')
@@ -466,4 +247,4 @@ def test_ModelC_AllCNN(learning_rate=0.05, n_epochs=350, batch_size=200, L2_reg=
            ' ran for %.2fm' % ((end_time - start_time) / 60.)), sys.stderr)
 
 if __name__ == '__main__':
-    test_ModelC_AllCNN()
+    test_AllCNN_Models(model='b')

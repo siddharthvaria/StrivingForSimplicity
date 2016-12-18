@@ -8,6 +8,10 @@ import theano.tensor as T
 from preprocessing import global_contrast_normalize
 import cPickle as pickle
 import gzip
+from scipy import ndimage
+import random
+from matplotlib import pyplot as plt
+from scipy.misc import imresize
 
 def drop(input, p=0.5): 
     """
@@ -57,6 +61,82 @@ def drop_matrix(input, p):
     mask = srng.binomial(n=1, p=p, size=(a,b/3), dtype=theano.config.floatX)
     mask = T.tile(mask,(1,3))
     return input * mask
+
+# enlarge the three components of 32*32 image into 126*126 image
+def enlargeImage(img):
+    bsize = 126
+    padding = (bsize - 32) // 2
+    bImg = numpy.zeros((img.shape[0], bsize, bsize))
+    bImg[:,padding:padding+32,padding:padding+32] = img
+    return bImg
+
+def upsample(img):
+    return [imresize(x,(126,126)) for x in img]
+
+def enlargeMiniBatch(images):
+    enlarged_images = []
+    for img in images:
+        #enlarged_images.append(enlargeImage(img))
+        enlarged_images.append(upsample(img))
+
+    enlarged_images = numpy.asarray(enlarged_images, dtype=theano.config.floatX)
+    assert (images.shape[:2] == enlarged_images.shape[:2]), 'Dimension mismatch while enlarging images!'
+    return enlarged_images
+
+def augmentImages(X, shift1=0, shift2=0, enlarge=False):
+    #print ('enlarge: ', enlarge)
+    X_augmented = []
+    for x in X:
+        if enlarge:
+            #x = enlargeImage(x)
+            x = upsample(x)
+        isAugment = random.randint(0,1)
+        if isAugment:
+            # randomly decide to flip the image or translate
+            cFlip = random.randint(0,1)
+            if cFlip:
+                # flip the image
+                X_augmented.append(flipSingleImage(x))
+            else:
+                # translate the image
+                X_augmented.append(translate_single_image(x, numpy.random.random_integers(0,shift1), numpy.random.random_integers(0,shift2)))
+        else:
+            X_augmented.append(x)
+    
+    X_augmented = numpy.asarray(X_augmented, dtype=theano.config.floatX)
+    assert (X.shape[:2] == X_augmented.shape[:2]), 'Dimension mismatch while augmenting images!'
+    return X_augmented
+
+def translate_single_image(img,x_shift,y_shift):
+    return [ndimage.interpolation.shift(x,(x_shift,y_shift)) for x in img]
+
+def flipSingleImage(img):
+    return [numpy.fliplr(x) for x in img]
+
+def plotImages(rseed, shift1=0, shift2=0, aug=True, enlarge=False, whiten_gcn=True):
+    #print ('enlarge: ', enlarge)
+    if whiten_gcn:
+        datasets = load_data2(theano_shared=False)
+    else:
+        datasets = load_data1(theano_shared=False)
+    test_set_x, test_set_y = datasets[2]
+    X = test_set_x[0:501].reshape(501,3,32,32)
+    if aug:
+        X_new = augmentImages(X, shift1=shift1, shift2=shift2, enlarge=enlarge)
+    else:
+        if enlarge:
+            X_new = enlargeMiniBatch(X)
+        else:
+            X_new = X
+    f, axarr = plt.subplots(4,4)
+    c = 0
+    for i in range(4):
+        for j in range(4):
+            plt.axes(axarr[i,j])
+            plt.imshow(X_new[rseed[c]].transpose(1,2,0))
+            c += 1
+    f.savefig('/home/siddharth/workspace/StrivingForSimplicity/images_aug_{0}_enlarge_{1}_wgcn_{2}.png'.format(int(aug), int(enlarge), int(whiten_gcn)))
+    plt.close(f)
 
 def shared_dataset(data_xy, borrow=True):
     """ Function that loads the dataset into shared variables
@@ -157,10 +237,10 @@ def load_data1(ds_rate=None, theano_shared=True):
     # sqrt_bias=10 for pixel range [0,255]
     # Should we normalize r,g,b components separately ? Not sure
 
-    print ('global contrast normalizing train data ...')
-    train_set['data'] = global_contrast_normalize(train_set['data'], subtract_mean=True, use_std=True, sqrt_bias=10)
-    print ('global contrast normalizing test data ...')
-    test_set['data'] = global_contrast_normalize(test_set['data'], subtract_mean=True, use_std=True, sqrt_bias=10)
+#     print ('global contrast normalizing train data ...')
+#     train_set['data'] = global_contrast_normalize(train_set['data'], subtract_mean=True, use_std=True, sqrt_bias=10)
+#     print ('global contrast normalizing test data ...')
+#     test_set['data'] = global_contrast_normalize(test_set['data'], subtract_mean=True, use_std=True, sqrt_bias=10)
     
     train_set=(train_set['data'],train_set['labels'])
     test_set=(test_set['data'],test_set['labels'])
@@ -258,3 +338,18 @@ def load_data2(ds_rate=None, theano_shared=True):
         rval = [train_set, valid_set, test_set]
 
     return rval
+
+if __name__ == '__main__':
+    #indices = numpy.random.random_integers(0,high=500,size=(16,))
+    indices = numpy.arange(16)
+    #plotImages(indices, 5, 5, aug=True, enlarge=False)
+    
+    # no augmentation, no whitening, actual and enlarged images
+    #plotImages(indices, 5, 5, aug=False, enlarge=False, whiten_gcn=False)
+    plotImages(indices, 5, 5, aug=False, enlarge=True, whiten_gcn=False)
+    
+#     plotImages(indices, shift1=5, shift2=5, aug=True, enlarge=False, whiten_gcn=False)
+#     plotImages(indices, shift1=5, shift2=5, aug=True, enlarge=True, whiten_gcn=False)
+
+#     plotImages(indices, shift1=5, shift2=5, aug=False, enlarge=False, whiten_gcn=True)
+#     plotImages(indices, shift1=5, shift2=5, aug=False, enlarge=True, whiten_gcn=True)

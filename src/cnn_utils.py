@@ -4,6 +4,7 @@ import theano.tensor as T
 from theano.tensor.nnet import conv2d
 import numpy
 from utils import drop
+from theano.tensor.nnet import batch_normalization
 
 # It is not logistic regression layer. Just softmax activation function so there are no parameters associated
 # with this layer
@@ -91,7 +92,7 @@ class SoftmaxWrapper(object):
 # Below convolutional layer skips pooling and depending on the ssample dimensions uses stride of 1 or more.
 class myConvLayer(object):
 
-    def __init__(self, rng, is_train, input_data, filter_shape, image_shape, ssample=(1,1), bordermode='valid', p=0.5, alpha=0):
+    def __init__(self, rng, is_train, input_data, filter_shape, image_shape, ssample=(1,1), bordermode='valid', p=0.5, alpha=0.0):
         """
         Allocate a LeNetConvPoolLayer with shared variable internal parameters.
 
@@ -165,3 +166,89 @@ class myConvLayer(object):
         # keep track of model input
         self.input = input_data
         
+class myConvLayerBN(object):
+
+    def __init__(self, rng, is_train, input_data, filter_shape, image_shape, ssample=(1,1), bordermode='valid', p=0.5, alpha=0.0):
+        """
+        :type rng: numpy.random.RandomState
+        :param rng: a random number generator used to initialize weights
+
+        :type input: theano.tensor.dtensor4
+        :param input: symbolic image tensor, of shape image_shape
+
+        :type filter_shape: tuple or list of length 4
+        :param filter_shape: (number of filters, num input feature maps,
+                              filter height, filter width)
+
+        :type image_shape: tuple or list of length 4
+        :param image_shape: (batch size, num input feature maps,
+                             image height, image width)
+
+        :type poolsize: tuple or list of length 2
+        :param poolsize: the downsampling (pooling) factor (#rows, #cols)
+        """
+        
+        assert image_shape[1] == filter_shape[1]
+
+        # there are "num input feature maps * filter height * filter width"
+        # inputs to each hidden unit
+        fan_in = numpy.prod(filter_shape[1:])
+        # each unit in the lower layer receives a gradient from:
+        # "num output feature maps * filter height * filter width" /
+        #   pooling size
+        fan_out = (filter_shape[0] * numpy.prod(filter_shape[2:]) //
+                   numpy.prod(ssample))
+        
+        # initialize weights with random weights
+        W_bound = numpy.sqrt(6. / (fan_in + fan_out))
+        self.W = theano.shared(
+            numpy.asarray(
+                rng.uniform(low=-W_bound, high=W_bound, size=filter_shape),
+                dtype=theano.config.floatX
+            ),
+            borrow=True
+        )
+
+        # the bias is a 1D tensor -- one bias per output feature map
+        b_values = numpy.zeros((filter_shape[0],), dtype=theano.config.floatX)
+        self.b = theano.shared(value=b_values, borrow=True)
+
+        gamma_values = numpy.ones((filter_shape[0],), dtype=theano.config.floatX)
+        self.gamma = theano.shared(value = gamma_values, borrow=True)
+        
+        beta_values = numpy.zeros((filter_shape[0],), dtype=theano.config.floatX)
+        self.beta = theano.shared(value = beta_values, borrow=True)
+
+        # convolve input feature maps with filters
+        conv_out = conv2d(
+            input=input_data,
+            filters=self.W,
+            filter_shape=filter_shape,
+            input_shape=image_shape,
+            subsample=ssample,
+            border_mode=bordermode
+        )
+
+        # add the bias term. Since the bias is a vector (1D array), we first
+        # reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
+        # thus be broadcasted across mini-batches and feature map
+        # width & height
+        
+        lin_output = conv_out + self.b.dimshuffle('x', 0, 'x', 'x')
+        
+        bn_output = batch_normalization(inputs = lin_output,
+            gamma = self.gamma.dimshuffle('x',0,'x','x'), beta = self.beta.dimshuffle('x',0,'x','x'), mean = lin_output.mean((0,), keepdims=True),
+            std = lin_output.std((0,), keepdims = True),
+                        mode='low_mem')
+        
+        activated_output = T.nnet.relu(bn_output, alpha=alpha)
+        
+        dropped_output = drop(activated_output,p)
+        
+        self.output = T.switch(T.neq(is_train, 0), dropped_output, p*activated_output)
+        
+        # store parameters of this layer
+        self.params = [self.W, self.b, self.gamma, self.beta]
+
+        # keep track of model input
+        self.input = input_data
