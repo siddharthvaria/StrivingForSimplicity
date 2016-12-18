@@ -341,6 +341,7 @@ class ModelA_AllCNN(object):
     
         # make sure this is what global averaging does
         global_average=layer6.output.mean(axis=(2,3))
+        
         softmax_layer=SoftmaxWrapper(input_data=global_average, n_in=10, n_out=10)
         
         self.errors = softmax_layer.errors(y_data)

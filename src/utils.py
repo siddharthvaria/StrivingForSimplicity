@@ -76,8 +76,8 @@ def upsample(img):
 def enlargeMiniBatch(images):
     enlarged_images = []
     for img in images:
-        #enlarged_images.append(enlargeImage(img))
-        enlarged_images.append(upsample(img))
+        enlarged_images.append(enlargeImage(img))
+        #enlarged_images.append(upsample(img))
 
     enlarged_images = numpy.asarray(enlarged_images, dtype=theano.config.floatX)
     assert (images.shape[:2] == enlarged_images.shape[:2]), 'Dimension mismatch while enlarging images!'
@@ -88,8 +88,8 @@ def augmentImages(X, shift1=0, shift2=0, enlarge=False):
     X_augmented = []
     for x in X:
         if enlarge:
-            #x = enlargeImage(x)
-            x = upsample(x)
+            x = enlargeImage(x)
+            #x = upsample(x)
         isAugment = random.randint(0,1)
         if isAugment:
             # randomly decide to flip the image or translate

@@ -23,7 +23,6 @@ def test_AllCNN_Models(model='c', learning_rate=0.05, n_epochs=350, batch_size=2
     :param batch_size: the number of training examples per batch
     """
 
-    
     rng = numpy.random.RandomState(23455)
 
     datasets = load_data2()
