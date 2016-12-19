@@ -495,7 +495,6 @@ def test_AllCNN_Models_DA_BN(use_bn=False, model='c', learning_rate=0.05, n_epoc
                            )
         
     print 'Training Model: ', classifier.__class__.__name__
-
     
     test_model = theano.function(
         [x, y],
@@ -583,7 +582,10 @@ def test_AllCNN_Models_DA_BN(use_bn=False, model='c', learning_rate=0.05, n_epoc
 
     epoch = 0
     done_looping = False
-    updateLRAfter = 200
+    if use_bn:
+        updateLRAfter = 100
+    else:
+        updateLRAfter = 200    
 
     while (epoch < n_epochs) and (not done_looping):
         
@@ -593,15 +595,12 @@ def test_AllCNN_Models_DA_BN(use_bn=False, model='c', learning_rate=0.05, n_epoc
         if(epoch > updateLRAfter):
             learning_rate *= 0.1
             updateLRAfter += 50
-            print 'epoch: ', epoch
-            print 'updateLRAfter: ', updateLRAfter
-            print 'learning_rate: ', learning_rate
 
         for minibatch_index in range(n_train_batches):
             #print 'epoch: {0}, minibatch: {1}'.format(epoch, minibatch_index)
             iter = (epoch - 1) * n_train_batches + minibatch_index
-            if iter % 50 == 0:
-                print('training @ iter = ', iter)
+#             if iter % 50 == 0:
+#                 print('training @ iter = ', iter)
 
             train_x = augmentImages(train_set_x[minibatch_index * batch_size: (minibatch_index + 1) * batch_size], shift1=s1, shift2=s2)
             train_y = train_set_y[minibatch_index* batch_size: (minibatch_index + 1) * batch_size]
@@ -653,12 +652,11 @@ def test_AllCNN_Models_DA_BN(use_bn=False, model='c', learning_rate=0.05, n_epoc
         
     end_time = timeit.default_timer()
     print('Optimization complete.')
-    print('Best validation score of %f %% obtained at iteration %i, '
-          'with test performance %f %%' %
+    print('Best validation score of %f %% obtained with test performance %f %%' %
           (best_validation_loss * 100., best_iter + 1, test_score * 100.))
-    print(('The code for file ' +
-           os.path.split(__file__)[1] +
-           ' ran for %.2fm' % ((end_time - start_time) / 60.)), sys.stderr)
+#     print(('The code for file ' +
+#            os.path.split(__file__)[1] +
+#            ' ran for %.2fm' % ((end_time - start_time) / 60.)), sys.stderr)
 
 if __name__ == '__main__':
-    test_AllCNN_Models_DA_BN()
+    test_AllCNN_Models_DA_BN(use_bn=True, model='b')

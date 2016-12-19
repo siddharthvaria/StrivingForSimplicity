@@ -128,10 +128,12 @@ def plotImages(rseed, shift1=0, shift2=0, aug=True, enlarge=False, whiten_gcn=Tr
             X_new = enlargeMiniBatch(X)
         else:
             X_new = X
-    f, axarr = plt.subplots(4,4)
+    f, axarr = plt.subplots(2,2)
     c = 0
-    for i in range(4):
-        for j in range(4):
+    for i in range(2):
+        print (i)
+        for j in range(2):
+            print (j)
             plt.axes(axarr[i,j])
             plt.imshow(X_new[rseed[c]].transpose(1,2,0))
             c += 1
@@ -346,10 +348,10 @@ if __name__ == '__main__':
     
     # no augmentation, no whitening, actual and enlarged images
     #plotImages(indices, 5, 5, aug=False, enlarge=False, whiten_gcn=False)
-    plotImages(indices, 5, 5, aug=False, enlarge=True, whiten_gcn=False)
+    #plotImages(indices, 5, 5, aug=False, enlarge=True, whiten_gcn=False)
     
 #     plotImages(indices, shift1=5, shift2=5, aug=True, enlarge=False, whiten_gcn=False)
 #     plotImages(indices, shift1=5, shift2=5, aug=True, enlarge=True, whiten_gcn=False)
 
-#     plotImages(indices, shift1=5, shift2=5, aug=False, enlarge=False, whiten_gcn=True)
+    plotImages(indices, shift1=5, shift2=5, aug=False, enlarge=False, whiten_gcn=True)
 #     plotImages(indices, shift1=5, shift2=5, aug=False, enlarge=True, whiten_gcn=True)

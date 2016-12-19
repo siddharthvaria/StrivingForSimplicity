@@ -366,16 +366,368 @@ class ModelA_AllCNN(object):
         
 
 class ModelA_AllCNN_BN(object):
-    def __init__(self):
-        pass
+    def __init__(self, rng, X_data, y_data, batch_size, training_enabled, layer_ndo_p, L2_reg):
+
+        layer0 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=X_data,
+            filter_shape=(96, 3, 5, 5),
+            image_shape=(batch_size, 3, 32, 32),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
     
+        layer1 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer0.output,
+            filter_shape=(96, 96, 3, 3),
+            image_shape=(batch_size, 96, 32, 32),
+            ssample=(2,2),
+            bordermode='half',
+            p=layer_ndo_p
+        )
+    
+        layer2 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer1.output,
+            filter_shape=(192, 96, 5, 5),
+            image_shape=(batch_size, 96, 16, 16),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer3 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer2.output,
+            filter_shape=(192, 192, 3, 3),
+            image_shape=(batch_size, 192, 16, 16),
+            ssample=(2,2),
+            bordermode='half',
+            p=layer_ndo_p
+        )
+    
+        layer4 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer3.output,
+            filter_shape=(192, 192, 3, 3),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer5 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer4.output,
+            filter_shape=(192, 192, 1, 1),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer6 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer5.output,
+            filter_shape=(10, 192, 1, 1),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        # make sure this is what global averaging does
+        global_average=layer6.output.mean(axis=(2,3))
+        
+        softmax_layer=SoftmaxWrapper(input_data=global_average, n_in=10, n_out=10)
+        
+        self.errors = softmax_layer.errors(y_data)
+        
+        L2_sqr = (
+                    (layer0.W ** 2).sum()
+                    +(layer1.W**2).sum()
+                    +(layer2.W**2).sum()
+                    +(layer3.W**2).sum()
+                    +(layer4.W**2).sum()
+                    +(layer5.W**2).sum()
+                    +(layer6.W**2).sum()
+        )
+    
+        # the cost we minimize during training is the NLL of the model
+        self.cost = (softmax_layer.negative_log_likelihood(y_data) + L2_reg * L2_sqr)
+        
+        self.params = layer6.params + layer5.params + layer4.params + layer3.params + layer2.params + layer1.params + layer0.params
+        
+        self.input = X_data
+        self.y = y_data
+
 class ModelB_AllCNN_BN(object):
-    def __init__(self):
-        pass
+    def __init__(self, rng, X_data, y_data, batch_size, training_enabled, layer_ndo_p, L2_reg):
+        
+        layer0 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=X_data,
+            filter_shape=(96, 3, 5, 5),
+            image_shape=(batch_size, 3, 32, 32),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer1 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer0.output,
+            filter_shape=(96, 96, 1, 1),
+            image_shape=(batch_size, 96, 32, 32),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer2 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer1.output,
+            filter_shape=(96, 96, 3, 3),
+            image_shape=(batch_size, 96, 32, 32),
+            ssample=(2,2),
+            bordermode='half',
+            p=layer_ndo_p
+        )
+    
+        layer3 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer2.output,
+            filter_shape=(192, 96, 5, 5),
+            image_shape=(batch_size, 96, 16, 16),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer4 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer3.output,
+            filter_shape=(192, 192, 1, 1),
+            image_shape=(batch_size, 192, 16, 16),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer5 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer4.output,
+            filter_shape=(192, 192, 3, 3),
+            image_shape=(batch_size, 192, 16, 16),
+            ssample=(2,2),
+            bordermode='half',
+            p=layer_ndo_p
+        )
+    
+        layer6 = myConvLayerBN(
+            rng,
+             is_train=training_enabled,
+            input_data=layer5.output,
+            filter_shape=(192, 192, 3, 3),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer7 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer6.output,
+            filter_shape=(192, 192, 1, 1),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer8 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer7.output,
+            filter_shape=(10, 192, 1, 1),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+
+        global_average=layer8.output.mean(axis=(2,3))
+    
+        softmax_layer=SoftmaxWrapper(input_data=global_average, n_in=10, n_out=10)
+        
+        self.errors = softmax_layer.errors(y_data)
+    
+        L2_sqr = (
+                    (layer0.W ** 2).sum()
+                    +(layer1.W**2).sum()
+                    +(layer2.W**2).sum()
+                    +(layer3.W**2).sum()
+                    +(layer4.W**2).sum()
+                    +(layer5.W**2).sum()
+                    +(layer6.W**2).sum()
+                    +(layer7.W**2).sum()
+                    +(layer8.W**2).sum()
+        )
+    
+        # the cost we minimize during training is the NLL of the model
+        self.cost = (softmax_layer.negative_log_likelihood(y_data) + L2_reg * L2_sqr)
+        
+        self.params = layer8.params + layer7.params + layer6.params + layer5.params + layer4.params + layer3.params + layer2.params + layer1.params + layer0.params
+        
+        self.input = X_data
+        self.y = y_data
+
 
 class ModelC_AllCNN_BN(object):
-    def __init__(self):
-        pass
+    def __init__(self, rng, X_data, y_data, batch_size, training_enabled, layer_ndo_p, L2_reg):
+
+        layer0 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=X_data,
+            filter_shape=(96, 3, 3, 3),
+            image_shape=(batch_size, 3, 32, 32),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer1 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer0.output,
+            filter_shape=(96, 96, 3, 3),
+            image_shape=(batch_size, 96, 32, 32),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer2 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer1.output,
+            filter_shape=(96, 96, 3, 3),
+            image_shape=(batch_size, 96, 32, 32),
+            ssample=(2,2),
+            bordermode='half',
+            p=layer_ndo_p
+        )
+    
+        layer3 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer2.output,
+            filter_shape=(192, 96, 3, 3),
+            image_shape=(batch_size, 96, 16, 16),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer4 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer3.output,
+            filter_shape=(192, 192, 3, 3),
+            image_shape=(batch_size, 192, 16, 16),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer5 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer4.output,
+            filter_shape=(192, 192, 3, 3),
+            image_shape=(batch_size, 192, 16, 16),
+            ssample=(2,2),
+            bordermode='half',
+            p=layer_ndo_p
+        )
+    
+        layer6 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer5.output,
+            filter_shape=(192, 192, 3, 3),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer7 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer6.output,
+            filter_shape=(192, 192, 1, 1),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        layer8 = myConvLayerBN(
+            rng,
+            is_train=training_enabled,
+            input_data=layer7.output,
+            filter_shape=(10, 192, 1, 1),
+            image_shape=(batch_size, 192, 8, 8),
+            ssample=(1,1),
+            bordermode='half',
+            p=1.0
+        )
+    
+        # make sure this is what global averaging does
+        global_average=layer8.output.mean(axis=(2,3))
+    
+        softmax_layer=SoftmaxWrapper(input_data=global_average, n_in=10, n_out=10)
+        
+        self.errors = softmax_layer.errors(y_data)
+    
+        L2_sqr = (
+                    (layer0.W ** 2).sum()
+                    +(layer1.W**2).sum()
+                    +(layer2.W**2).sum()
+                    +(layer3.W**2).sum()
+                    +(layer4.W**2).sum()
+                    +(layer5.W**2).sum()
+                    +(layer6.W**2).sum()
+                    +(layer7.W**2).sum()
+                    +(layer8.W**2).sum()
+        )
+    
+        # the cost we minimize during training is the NLL of the model
+        self.cost = (softmax_layer.negative_log_likelihood(y_data) + L2_reg*L2_sqr)
+        
+        self.params = layer8.params + layer7.params + layer6.params + layer5.params + layer4.params + layer3.params + layer2.params + layer1.params + layer0.params
+
+        self.input = X_data
+        self.y = y_data
+
 
 class Large_AllCNN(object):
 

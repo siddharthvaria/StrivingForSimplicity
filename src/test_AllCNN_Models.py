@@ -182,16 +182,13 @@ def test_AllCNN_Models(model='c', learning_rate=0.05, n_epochs=350, batch_size=2
         if(epoch > updateLRAfter):
             learning_rate *= 0.1
             updateLRAfter += 50
-            print 'epoch: ', epoch
-            print 'updateLRAfter: ', updateLRAfter
-            print 'learning_rate: ', learning_rate
 
         for minibatch_index in range(n_train_batches):
             #print 'epoch: {0}, minibatch: {1}'.format(epoch, minibatch_index)
                         
             iter = (epoch - 1) * n_train_batches + minibatch_index
-            if iter % 50 == 0:
-                print('training @ iter = ', iter)
+#             if iter % 50 == 0:
+#                 print('training @ iter = ', iter)
             cost_ij = train_model(minibatch_index, learning_rate)
             
             if (iter + 1) % validation_frequency == 0:
@@ -246,4 +243,4 @@ def test_AllCNN_Models(model='c', learning_rate=0.05, n_epochs=350, batch_size=2
            ' ran for %.2fm' % ((end_time - start_time) / 60.)), sys.stderr)
 
 if __name__ == '__main__':
-    test_AllCNN_Models(model='b')
+    test_AllCNN_Models(model='c')
