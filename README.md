@@ -16,18 +16,18 @@ Table 1: Reproduced results on CIFAR-10 without data augmentation.
 
 | Model         | Paper Error Rate (%) / Epochs           | Our Error Rate (%) / Epochs  |
 | :-------------: |:-------------:| :-----:|
-| ALL-CNN-A     | - | 12.47|
-| ALL-CNN-B     | -      |   11.54 |
-| ALL-CNN-C     | 7.25%     |    10.80 |
+| ALL-CNN-A     | - | 12.47/350|
+| ALL-CNN-B     | -      |   11.54/350 |
+| ALL-CNN-C     | 7.25%/350     |    10.80/350 |
 
 Table 2: Reproduced results on CIFAR-10 with data augmentation 
 
 
 | Model         | Paper Error Rate (%) / Epochs           | Our Error Rate (%) / Epochs  |
 | :-------------: |:-------------:| :-----:|
-| ALL-CNN-A     | - | 11.71 |
-| ALL-CNN-B     | -      |   10.67 |
-| ALL-CNN-C     | -     |    9.64 |
+| ALL-CNN-A     | - | 11.71/150 |
+| ALL-CNN-B     | -      |   10.67/150 |
+| ALL-CNN-C     | -     |    9.64/150 |
 Table 3: Reproduced results on CIFAR-10 with data augmentation and training done using batch normalization 
 
 ![alt text](https://github.com/rr3087/StrivingForSimplicity/blob/master/src/images/allplotsinone_150_final1.jpg)
