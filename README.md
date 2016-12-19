@@ -1,4 +1,4 @@
-#STRIVING FOR SIMPLICITY: THE ALL CONVOLUTIONAL NET#
+#STRIVING FOR STATE-OF-THE-ART USING ALL CONVOLUTIONAL NETWORKS#
 
 Our goal is to implement and reproduce “All Convolutional Net” by Springenberg et-al (2015), using convolutional layers (no max pooling) to achieve state-of-the-art results, and suggest new architectures. The paper lacked crucial hyperparameters like learning-rate and batch-size, a challenge eventually resolved after experimentation. A novelty was implementing batch-normalization, and obtaining comparable results in much fewer epochs. 
 
