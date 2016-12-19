@@ -6,7 +6,7 @@ Following are the results from our project:
 
 
 | Model         | Paper Error Rate (%) / Epochs           | Our Error Rate (%) / Epochs  |
-| ------------- |:-------------:| -----:|
+| :-------------: |:-------------:| :-----:|
 | ALL-CNN-A     | 10.30% / 350 | 14.81 / 350 |
 | ALL-CNN-B     | 9.10% / 350      |   15.22 / 350 |
 | ALL-CNN-C     | 9.08% / 350     |    13.19 / 350 |
@@ -15,7 +15,7 @@ Table 1: Reproduced results on CIFAR-10 without data augmentation.
 
 
 | Model         | Paper Error Rate (%) / Epochs           | Our Error Rate (%) / Epochs  |
-| ------------- |:-------------:| -----:|
+| :-------------: |:-------------:| :-----:|
 | ALL-CNN-A     | - | 12.47|
 | ALL-CNN-B     | -      |   11.54 |
 | ALL-CNN-C     | 7.25%     |    10.80 |
@@ -24,7 +24,7 @@ Table 2: Reproduced results on CIFAR-10 with data augmentation
 
 
 | Model         | Paper Error Rate (%) / Epochs           | Our Error Rate (%) / Epochs  |
-| ------------- |:-------------:| -----:|
+| :-------------: |:-------------:| :-----:|
 | ALL-CNN-A     | - | 11.71 |
 | ALL-CNN-B     | -      |   10.67 |
 | ALL-CNN-C     | -     |    9.64 |
