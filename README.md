@@ -30,6 +30,6 @@ Table 2: Reproduced results on CIFAR-10 with data augmentation
 | ALL-CNN-C     | -     |    9.64 |
 Table 3: Reproduced results on CIFAR-10 with data augmentation and training done using batch normalization 
 
-Image 
+![alt text](https://github.com/rr3087/StrivingForSimplicity/blob/master/src/images/allplotsinone_150_final1.jpg)
  
 Fig. 4 Comparison of Test Error Rate for 3 models over 150 epochs.  
